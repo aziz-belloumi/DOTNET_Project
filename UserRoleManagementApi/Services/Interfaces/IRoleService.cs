@@ -4,8 +4,8 @@ namespace UserRoleManagementApi.Services.Interfaces
 {
     public interface IRoleService
     {
-        Task<IEnumerable<Role>> GetAllRoles();
-        Task<Role> GetRoleById(int id);
+        Task<IEnumerable<object>> GetAllRoles();
+        Task<object> GetRoleById(int id);
         Task<Role> CreateRole(Role role);
         Task UpdateRole(Role role);
         Task DeleteRole(int id);

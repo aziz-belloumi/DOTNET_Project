@@ -14,19 +14,44 @@ namespace UserRoleManagementApi.Services.Implementations
             _context = context;
         }
 
-        public async Task<IEnumerable<Role>> GetAllRoles()
+        public async Task<IEnumerable<object>> GetAllRoles()
         {
             return await _context.Roles
                 .Include(r => r.Users)
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Name,
+                    Users = r.Users.Select(u => new
+                    {
+                        u.Id,
+                        u.Username,
+                        u.Email
+                    }).ToList()
+                })
                 .ToListAsync();
         }
 
-        public async Task<Role> GetRoleById(int id)
+
+        public async Task<object> GetRoleById(int id)
         {
             return await _context.Roles
+                .Where(r => r.Id == id)
                 .Include(r => r.Users)
-                .FirstOrDefaultAsync(r => r.Id == id);
+                .Select(r => new
+                {
+                    r.Id,
+                    r.Name,
+                    Users = r.Users.Select(u => new
+                    {
+                        u.Id,
+                        u.Username,
+                        u.Email
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
         }
+
 
         public async Task<Role> CreateRole(Role role)
         {
