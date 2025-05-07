@@ -16,7 +16,9 @@ namespace UserRoleManagementApi.Services.Implementations
 
         public async Task<IEnumerable<Role>> GetAllRoles()
         {
-            return await _context.Roles.ToListAsync();
+            return await _context.Roles
+                .Include(r => r.Users)
+                .ToListAsync();
         }
 
         public async Task<Role> GetRoleById(int id)
@@ -33,17 +35,30 @@ namespace UserRoleManagementApi.Services.Implementations
             return role;
         }
 
-        public async Task UpdateRole(Role role)
+        public async Task UpdateRole(Role updatedRole)
         {
-            _context.Entry(role).State = EntityState.Modified;
+            var existingRole = await _context.Roles
+                .Include(r => r.Users)
+                .FirstOrDefaultAsync(r => r.Id == updatedRole.Id);
+
+            if (existingRole == null)
+            {
+                throw new ArgumentException("Role not found");
+            }
+
+            existingRole.Name = updatedRole.Name;
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteRole(int id)
         {
-            var role = await _context.Roles.FindAsync(id);
+            var role = await _context.Roles
+                .Include(r => r.Users)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
             if (role != null)
             {
+                role.Users.Clear(); // detach from users if needed
                 _context.Roles.Remove(role);
                 await _context.SaveChangesAsync();
             }
@@ -51,7 +66,10 @@ namespace UserRoleManagementApi.Services.Implementations
 
         public async Task AssignRoleToUser(int userId, int roleId)
         {
-            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
             var role = await _context.Roles.FindAsync(roleId);
 
             if (user == null || role == null)
@@ -68,12 +86,19 @@ namespace UserRoleManagementApi.Services.Implementations
 
         public async Task RemoveRoleFromUser(int userId, int roleId)
         {
-            var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
-            var role = user?.Roles.FirstOrDefault(r => r.Id == roleId);
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-            if (role != null)
+            if (user == null)
             {
-                user.Roles.Remove(role);
+                throw new ArgumentException("User not found");
+            }
+
+            var roleToRemove = user.Roles.FirstOrDefault(r => r.Id == roleId);
+            if (roleToRemove != null)
+            {
+                user.Roles.Remove(roleToRemove);
                 await _context.SaveChangesAsync();
             }
         }

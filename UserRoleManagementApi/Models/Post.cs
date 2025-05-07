@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace UserRoleManagementApi.Models
 {
     public class Post

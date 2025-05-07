@@ -16,12 +16,18 @@ namespace UserRoleManagementApi.Services.Implementations
 
         public async Task<IEnumerable<User>> GetAllUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await _context.Users
+                .Include(u => u.Roles)
+                .Include(u => u.Posts)
+                .ToListAsync();
         }
 
         public async Task<User> GetUserById(int id)
         {
-            return await _context.Users.FindAsync(id);
+            return await _context.Users
+                .Include(u => u.Roles)
+                .Include(u => u.Posts)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User> CreateUser(User user)
@@ -31,17 +37,32 @@ namespace UserRoleManagementApi.Services.Implementations
             return user;
         }
 
-        public async Task UpdateUser(User user)
+        public async Task UpdateUser(User updatedUser)
         {
-            _context.Entry(user).State = EntityState.Modified;
+            var existingUser = await _context.Users.FindAsync(updatedUser.Id);
+            if (existingUser == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+
+            existingUser.Username = updatedUser.Username;
+            existingUser.Email = updatedUser.Email;
+            existingUser.Password = updatedUser.Password;
+
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .Include(u => u.Posts)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
             if (user != null)
             {
+                user.Roles.Clear(); // remove FK dependencies
+                _context.Posts.RemoveRange(user.Posts); // optional: remove user's posts
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
@@ -56,10 +77,11 @@ namespace UserRoleManagementApi.Services.Implementations
 
         public async Task<IEnumerable<Role>> GetUserRoles(int userId)
         {
-            return await _context.Users
-                .Where(u => u.Id == userId)
-                .SelectMany(u => u.Roles)
-                .ToListAsync();
+            var user = await _context.Users
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            return user?.Roles ?? Enumerable.Empty<Role>();
         }
     }
 }
