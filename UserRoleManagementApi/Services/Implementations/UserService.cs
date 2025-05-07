@@ -14,21 +14,57 @@ namespace UserRoleManagementApi.Services.Implementations
             _context = context;
         }
 
-        public async Task<IEnumerable<User>> GetAllUsers()
+        public async Task<IEnumerable<object>> GetAllUsers()
         {
             return await _context.Users
-                .Include(u => u.Roles)
                 .Include(u => u.Posts)
+                .Include(u => u.Roles)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Username,
+                    u.Email,
+                    Posts = u.Posts.Select(p => new
+                    {
+                        p.Id,
+                        p.Title,
+                        p.Content
+                    }).ToList(),
+                    Roles = u.Roles.Select(r => new
+                    {
+                        r.Id,
+                        r.Name
+                    }).ToList()
+                })
                 .ToListAsync();
         }
 
-        public async Task<User> GetUserById(int id)
+        public async Task<object> GetUserById(int id)
         {
             return await _context.Users
+                .Where(u => u.Id == id)
                 .Include(u => u.Roles)
                 .Include(u => u.Posts)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Username,
+                    u.Email,
+                    Posts = u.Posts.Select(p => new
+                    {
+                        p.Id,
+                        p.Title,
+                        p.Content
+                    }).ToList(),
+                    Roles = u.Roles.Select(r => new
+                    {
+                        r.Id,
+                        r.Name
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
         }
+
 
         public async Task<User> CreateUser(User user)
         {
@@ -61,27 +97,47 @@ namespace UserRoleManagementApi.Services.Implementations
 
             if (user != null)
             {
-                user.Roles.Clear(); // remove FK dependencies
-                _context.Posts.RemoveRange(user.Posts); // optional: remove user's posts
+                user.Roles.Clear();
+                _context.Posts.RemoveRange(user.Posts);
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<IEnumerable<Post>> GetUserPosts(int userId)
+        public async Task<IEnumerable<object>> GetUserPosts(int userId)
         {
+            var existingUser = await _context.Users.FindAsync(userId);
+            if (existingUser == null)
+            {
+                throw new ArgumentException("User not found");
+            }
             return await _context.Posts
-                .Where(p => p.UserId == userId)
+              .Where(p => p.UserId == userId)
+              .Select(p => new
+              {
+                  p.Id,
+                  p.Title,
+                  p.Content
+              }).ToListAsync();
+
+        }
+
+        public async Task<IEnumerable<object>> GetUserRoles(int userId)
+        {
+            var existingUser = await _context.Users.FindAsync(userId);
+            if (existingUser == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .SelectMany(u => u.Roles.Select(r => new
+                {
+                    r.Id,
+                    r.Name
+                }))
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Role>> GetUserRoles(int userId)
-        {
-            var user = await _context.Users
-                .Include(u => u.Roles)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            return user?.Roles ?? Enumerable.Empty<Role>();
-        }
     }
 }

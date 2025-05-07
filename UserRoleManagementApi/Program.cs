@@ -5,12 +5,6 @@ using UserRoleManagementApi.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddControllers()
-    //.AddJsonOptions(options =>
-    //{
-       // options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    //});
-
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

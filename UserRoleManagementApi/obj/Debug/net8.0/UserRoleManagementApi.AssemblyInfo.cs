@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("UserRoleManagementApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+103ac75148eeec4ff3576db21d4014d959dcd00e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5d082ac5c07841d41752e7d215e3f096fd764117")]
 [assembly: System.Reflection.AssemblyProductAttribute("UserRoleManagementApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("UserRoleManagementApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
