@@ -1,5 +1,3 @@
-
-
 namespace UserRoleManagementApi.Models
 {
     public class Post

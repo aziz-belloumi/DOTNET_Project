@@ -39,9 +39,9 @@ namespace UserRoleManagementApi.Services.Implementations
                 .ToListAsync();
         }
 
-        public async Task<object> GetUserById(int id)
+        public async Task<object?> GetUserById(int id)
         {
-            return await _context.Users
+            var user = await _context.Users
                 .Where(u => u.Id == id)
                 .Include(u => u.Roles)
                 .Include(u => u.Posts)
@@ -63,6 +63,13 @@ namespace UserRoleManagementApi.Services.Implementations
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                throw new ArgumentException("User not found");
+            }
+
+            return user;
         }
 
 
