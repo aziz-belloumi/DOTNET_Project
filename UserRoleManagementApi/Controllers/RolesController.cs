@@ -64,7 +64,7 @@ namespace UserRoleManagementApi.Controllers
 
         // POST: api/roles/assign
         [HttpPost("assign")]
-        public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignmentDto assignment)
+        public async Task<IActionResult> AssignRoleToUser([FromBody] RoleAssignment assignment)
         {
             try
             {
@@ -79,21 +79,14 @@ namespace UserRoleManagementApi.Controllers
 
         // POST: api/roles/remove
         [HttpPost("remove")]
-        public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignmentDto assignment)
+        public async Task<IActionResult> RemoveRoleFromUser([FromBody] RoleAssignment assignment)
         {
             await _roleService.RemoveRoleFromUser(assignment.UserId, assignment.RoleId);
             return Ok();
         }
-
-        // GET: api/roles/5/users
-        [HttpGet("{id}/users")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsersByRole(int id)
-        {
-            return Ok(await _roleService.GetUsersByRoleId(id));
-        }
     }
 
-    public class RoleAssignmentDto
+    public class RoleAssignment
     {
         public int UserId { get; set; }
         public int RoleId { get; set; }

@@ -77,12 +77,5 @@ namespace UserRoleManagementApi.Services.Implementations
                 await _context.SaveChangesAsync();
             }
         }
-
-        public async Task<IEnumerable<User>> GetUsersByRoleId(int roleId)
-        {
-            return await _context.Users
-                .Where(u => u.Roles.Any(r => r.Id == roleId))
-                .ToListAsync();
-        }
     }
 }

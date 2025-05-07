@@ -9,6 +9,5 @@ namespace UserRoleManagementApi.Services.Interfaces
         Task<Post> CreatePost(Post post);
         Task UpdatePost(Post post);
         Task DeletePost(int id);
-        Task<IEnumerable<Post>> GetPostsByUserId(int userId); // Get all posts for a specific user
     }
 }

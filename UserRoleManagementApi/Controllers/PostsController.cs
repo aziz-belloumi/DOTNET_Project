@@ -68,12 +68,5 @@ namespace UserRoleManagementApi.Controllers
             await _postService.DeletePost(id);
             return NoContent();
         }
-
-        // GET: api/users/5/posts
-        [HttpGet("~/api/users/{userId}/posts")]
-        public async Task<ActionResult<IEnumerable<Post>>> GetPostsByUser(int userId)
-        {
-            return Ok(await _postService.GetPostsByUserId(userId));
-        }
     }
 }

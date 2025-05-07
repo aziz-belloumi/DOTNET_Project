@@ -17,7 +17,7 @@ namespace UserRoleManagementApi.Services.Implementations
         public async Task<IEnumerable<Post>> GetAllPosts()
         {
             return await _context.Posts
-                .Include(p => p.User) // Include user data
+                .Include(p => p.User) 
                 .ToListAsync();
         }
 
@@ -56,14 +56,6 @@ namespace UserRoleManagementApi.Services.Implementations
                 _context.Posts.Remove(post);
                 await _context.SaveChangesAsync();
             }
-        }
-
-        public async Task<IEnumerable<Post>> GetPostsByUserId(int userId)
-        {
-            return await _context.Posts
-                .Where(p => p.UserId == userId)
-                .Include(p => p.User)
-                .ToListAsync();
         }
     }
 }

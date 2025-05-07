@@ -11,6 +11,5 @@ namespace UserRoleManagementApi.Services.Interfaces
         Task DeleteRole(int id);
         Task AssignRoleToUser(int userId, int roleId);
         Task RemoveRoleFromUser(int userId, int roleId);
-        Task<IEnumerable<User>> GetUsersByRoleId(int roleId);
     }
 }
